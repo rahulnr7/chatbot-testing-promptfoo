@@ -1,0 +1,17 @@
+{
+  "name": "chatbot-testing-promptfoo",
+  "version": "1.0.0",
+  "description": "Promptfoo-based test suite for chatbot/conversational AI evaluation and LLM API testing.",
+  "main": "index.js",
+  "scripts": {
+    "eval": "promptfoo eval",
+    "view": "promptfoo view"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "dotenv": "^17.4.2",
+    "promptfoo": "^0.122.0"
+  }
+}
