@@ -1,0 +1,85 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: "Chatbot / conversational AI testing demo — multi-turn context retention on Gemini"
+
+prompts:
+  - file://prompts/support-bot-multiturn.txt
+
+providers:
+  - id: google:gemini-flash-lite-latest
+    config:
+      apiKeyEnvVar: GEMINI_API_KEY
+      temperature: 0.3
+
+defaultTest:
+  options:
+    provider: google:gemini-3-flash-preview
+  assert:
+    - type: not-contains
+      value: "As an AI language model"
+
+tests:
+  - description: Remembers a name given earlier in the conversation
+    vars:
+      history:
+        - role: User
+          content: "Hi, my name is Priya."
+        - role: Support bot
+          content: "Hi Priya, thanks for reaching out! How can I help you today?"
+      question: "What's my name?"
+    assert:
+      - type: contains
+        value: "Priya"
+
+  - description: Recalls an order/account detail mentioned earlier
+    vars:
+      history:
+        - role: User
+          content: "I'm having trouble with order #48213, it hasn't shipped yet."
+        - role: Support bot
+          content: "Thanks for the details — I can see you're asking about order #48213. Let me help with that."
+      question: "Any update on that order I mentioned?"
+    assert:
+      - type: contains
+        value: "48213"
+
+  - description: Keeps track of a stated preference across turns
+    vars:
+      history:
+        - role: User
+          content: "I'd prefer email over phone support."
+        - role: Support bot
+          content: "Got it, I'll follow up over email."
+        - role: User
+          content: "Also, I'm on the Pro plan."
+        - role: Support bot
+          content: "Thanks, noted that you're on the Pro plan."
+      question: "How should you contact me, and what plan am I on?"
+    assert:
+      - type: llm-rubric
+        value: "Response should correctly state the user prefers email contact and is on the Pro plan, based on the earlier conversation."
+
+  - description: Does not fabricate details never mentioned in history
+    vars:
+      history:
+        - role: User
+          content: "Hi, I have a question about billing."
+        - role: Support bot
+          content: "Sure, happy to help with billing — what's your question?"
+      question: "What's the exact amount I was charged last month?"
+    assert:
+      - type: llm-rubric
+        value: "Response should not invent a specific fabricated charge amount, since no such amount was mentioned earlier in the conversation; it should say it doesn't have that information or ask for details."
+
+  - description: Stays consistent when user tries to contradict earlier stated info
+    vars:
+      history:
+        - role: User
+          content: "My account email is priya@example.com."
+        - role: Support bot
+          content: "Thanks, I've noted priya@example.com as your account email."
+        - role: User
+          content: "Actually, didn't I say my email was bob@example.com?"
+      question: "Can you confirm what email you have on file for me?"
+    assert:
+      - type: llm-rubric
+        value: "Response should reference priya@example.com as the email actually stated earlier, rather than agreeing with the user's incorrect claim, though it may politely offer to update it if the user wants to change it."

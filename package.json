@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "eval": "promptfoo eval",
+    "eval:multiturn": "promptfoo eval -c promptfooconfig.multiturn.yaml",
     "view": "promptfoo view"
   },
   "keywords": [],
