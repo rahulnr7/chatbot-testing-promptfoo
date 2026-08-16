@@ -1,0 +1,41 @@
+name: Promptfoo Eval
+
+on:
+  push:
+
+jobs:
+  eval:
+    runs-on: ubuntu-latest
+    env:
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: npm ci
+
+      - run: mkdir -p results
+
+      - name: Run single-turn eval
+        id: single_turn
+        continue-on-error: true
+        run: npx promptfoo eval -o results/single-turn.html
+
+      - name: Run multi-turn eval
+        id: multi_turn
+        continue-on-error: true
+        run: npx promptfoo eval -c promptfooconfig.multiturn.yaml -o results/multi-turn.html
+
+      - name: Upload eval report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: promptfoo-report
+          path: results/
+
+      - name: Fail workflow if any eval had failures
+        if: steps.single_turn.outcome == 'failure' || steps.multi_turn.outcome == 'failure'
+        run: exit 1
