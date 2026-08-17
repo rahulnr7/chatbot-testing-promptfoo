@@ -6,6 +6,8 @@
   "scripts": {
     "eval": "promptfoo eval",
     "eval:multiturn": "promptfoo eval -c promptfooconfig.multiturn.yaml",
+    "redteam:generate": "promptfoo redteam generate -c promptfooconfig.redteam.yaml -o promptfooconfig.redteam.generated.yaml",
+    "redteam:eval": "promptfoo redteam eval -c promptfooconfig.redteam.generated.yaml -j 2 --delay 1000 -o redteam-report.html",
     "view": "promptfoo view"
   },
   "keywords": [],

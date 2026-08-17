@@ -1,0 +1,58 @@
+name: Promptfoo Redteam Eval
+
+on:
+  workflow_dispatch:
+    inputs:
+      temperature:
+        description: "Target model temperature"
+        required: false
+        default: "0.3"
+      num_tests:
+        description: "Number of adversarial tests per plugin"
+        required: false
+        default: "2"
+
+jobs:
+  redteam:
+    runs-on: ubuntu-latest
+    env:
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      TEMPERATURE: ${{ inputs.temperature }}
+      NUM_TESTS: ${{ inputs.num_tests }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - run: npm ci
+
+      - run: mkdir -p results
+
+      - name: Set target temperature
+        run: |
+          sed -i "s/temperature: [0-9.]*/temperature: ${TEMPERATURE}/" promptfooconfig.redteam.yaml
+
+      - name: Generate adversarial tests
+        run: npx promptfoo redteam generate -c promptfooconfig.redteam.yaml --provider google:gemini-flash-lite-latest -n "${NUM_TESTS}" -o promptfooconfig.redteam.generated.yaml
+
+      - name: Run redteam eval
+        id: redteam
+        continue-on-error: true
+        run: npx promptfoo redteam eval -c promptfooconfig.redteam.generated.yaml -j 2 --delay 1000 -o results/redteam.html
+
+      - name: Copy generated attack corpus into report artifact
+        if: always()
+        run: cp promptfooconfig.redteam.generated.yaml results/ 2>/dev/null || true
+
+      - name: Upload redteam report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: promptfoo-redteam-report
+          path: results/
+
+      - name: Fail workflow if redteam eval had failures
+        if: steps.redteam.outcome == 'failure'
+        run: exit 1
