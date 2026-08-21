@@ -22,12 +22,12 @@ jobs:
       - name: Run single-turn eval
         id: single_turn
         continue-on-error: true
-        run: npx promptfoo eval -o results/single-turn.html
+        run: npx promptfoo eval -j 2 --delay 1000 -o results/single-turn.html
 
       - name: Run multi-turn eval
         id: multi_turn
         continue-on-error: true
-        run: npx promptfoo eval -c promptfooconfig.multiturn.yaml -o results/multi-turn.html
+        run: npx promptfoo eval -c promptfooconfig.multiturn.yaml -j 2 --delay 1000 -o results/multi-turn.html
 
       - name: Upload eval report
         if: always()

@@ -69,3 +69,10 @@ build artifact.
 ## Status
 
 Scaffolding in progress — see commit history for what's been built so far.
+
+## Roadmap
+
+This project currently covers chatbot *evaluation*, not agentic AI. See
+[`ROADMAP.md`](ROADMAP.md) for the plan to add hands-on experience with
+LangChain, LangGraph, CrewAI, and AutoGen, each tested the same way as the
+rest of this repo — with a Promptfoo eval config.
