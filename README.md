@@ -56,7 +56,9 @@ test-automation background (Puppeteer/Jest/UI automation) doesn't directly cover
 1. `npm run redteam:generate` — synthesizes adversarial test cases from
    `promptfooconfig.redteam.yaml` (requires one-time email verification with
    Promptfoo's free remote generation service, or pass `--provider` to use your
-   own model instead — see the CI workflow for an example).
+   own model instead — see the CI workflow for an example). Number of tests
+   generated per plugin defaults to 2 and can be overridden with
+   `NUM_TESTS=5 npm run redteam:generate`.
 2. `npm run redteam:eval` — runs the generated attacks against the target and
    writes `redteam-report.html`. Throttled (`-j 2 --delay 1000`) to stay under
    free-tier rate limits.
